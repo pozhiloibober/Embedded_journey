@@ -1,0 +1,5 @@
+# папка сборки
+build/
+
+# настройки Qt Creator (у каждого свои)
+CMakeLists.txt.user
