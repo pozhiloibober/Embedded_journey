@@ -2,8 +2,7 @@
 #define BITOPS_H
 
 #include <stdint.h>
-#include <stdio.h>
-#include <assert.h>
+
 
 void print_bits(uint32_t n);
 void bit_set(uint32_t* reg, uint8_t n);

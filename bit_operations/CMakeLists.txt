@@ -8,4 +8,6 @@ add_executable(bit_operations
     main.c
     bitops.c
     bitops.h
+    gpio.h
+    gpio.c
 )
