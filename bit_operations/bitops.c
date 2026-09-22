@@ -1,25 +1,12 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "bitops.h"
 
 void print_bits(uint32_t n);
 void bit_set(uint32_t* reg, uint8_t n);
 void bit_clear(uint32_t* reg, uint8_t n);
 void bit_toggle(uint32_t* reg, uint8_t n);
 int bit_is_set(const uint32_t reg, uint8_t n);
+void set_field(uint32_t* reg, uint8_t poz, uint8_t width, uint32_t value);
 
-int main()
-{
-
-    uint32_t a =31;
-    bit_toggle(&a, 1);
-    print_bits(a);
-
-    printf("%d\n", bit_is_set(a, 31));
-
-    return 0;
-}
 
 void print_bits(uint32_t n)
 {
@@ -56,3 +43,16 @@ int bit_is_set(const uint32_t reg, uint8_t n)
     assert(n<32);
     return (reg >> n) & 1U;
 }
+
+void set_field(uint32_t* reg, uint8_t poz, uint8_t width, uint32_t value)
+{
+    assert(reg!=NULL);
+    assert(poz<32);
+    assert((poz+width)<=32);
+    value = value & ((1U << width)-1);
+
+    *reg &= ~(((1U<<width)-1) << poz);
+    *reg |= (value<<poz);
+}
+
+
