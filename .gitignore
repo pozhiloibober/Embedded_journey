@@ -3,3 +3,12 @@ build/
 
 # настройки Qt Creator (у каждого свои)
 CMakeLists.txt.user
+
+# STM32CubeIDE: служебное workspace
+.metadata/
+RemoteSystemsTempFiles/
+
+# STM32CubeIDE: сборка и отладка
+Debug/
+Release/
+*.launch
