@@ -2,7 +2,7 @@
 #include "bitops.h"
 #include <assert.h>
 #include <stdio.h>
-void gpio_set_mode(uint32_t* moder_reg, uint8_t pin, enum GPIO_MODER_T mode)
+void gpio_set_mode(volatile uint32_t* moder_reg, uint8_t pin, enum GPIO_MODER_T mode)
 {
     assert(moder_reg!=NULL);
     assert(pin<16);

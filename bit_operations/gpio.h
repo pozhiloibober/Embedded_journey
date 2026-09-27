@@ -11,7 +11,7 @@ enum GPIO_MODER_T
     Analog_Mode = 3
 };
 
-void gpio_set_mode(uint32_t* moder_reg, uint8_t pin, enum GPIO_MODER_T mode);
+void gpio_set_mode(volatile uint32_t* moder_reg, uint8_t pin, enum GPIO_MODER_T mode);
 
 
 #endif // GPIO_H

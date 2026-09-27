@@ -10,14 +10,14 @@ void print_bits(uint32_t n)
     printf("\n");
 }
 
-void bit_set(uint32_t* reg, uint8_t n)
+void bit_set(volatile uint32_t* reg, uint8_t n)
 {
     assert(reg != NULL);
     assert(n<32);
     *reg|= (1U << n);
 }
 
-void bit_clear(uint32_t* reg, uint8_t n)
+void bit_clear(volatile uint32_t* reg, uint8_t n)
 {
 
     assert(reg != NULL);
@@ -25,20 +25,20 @@ void bit_clear(uint32_t* reg, uint8_t n)
     *reg &= ~(1U << n);
 }
 
-void bit_toggle(uint32_t* reg, uint8_t n)
+void bit_toggle(volatile uint32_t* reg, uint8_t n)
 {
     assert(reg != NULL);
     assert(n<32);
     *reg ^= (1U << n);
 }
 
-int bit_is_set(const uint32_t reg, uint8_t n)
+int bit_is_set(const volatile uint32_t reg, uint8_t n)
 {
     assert(n<32);
     return (reg >> n) & 1U;
 }
 
-void set_field(uint32_t* reg, uint8_t poz, uint8_t width, uint32_t value)
+void set_field(volatile uint32_t* reg, uint8_t poz, uint8_t width, uint32_t value)
 {
     assert(reg!=NULL);
     assert(poz<32);
