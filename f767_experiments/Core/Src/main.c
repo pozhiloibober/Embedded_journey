@@ -1,77 +1,93 @@
-
 #include "stm32f767xx.h"
 #include "bitops.h"
 #include <stdint.h>
 #include <stdbool.h>
 
-
-
 void led_init();
 void button_init();
 void button_front_toggle();
 
+void EXTI15_10_IRQHandler();
 
-
-
+volatile bool button_event = false;
 
 int main(void)
 {
-	led_init();
-	button_init();
+    led_init();
+    button_init();
 
+    while(1)
+    {
+        if(button_event)
+        {
+            button_event = false;
+            bit_toggle(&GPIOB->ODR, 0);
+        }
 
+    }
 
-
-	while(1)
-	{
-
-
-	}
-
-	return 0;
+    return 0;
 }
-
-
 
 void led_init()
 {
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;  				//led
-	GPIOB->MODER &= ~(GPIO_MODER_MODER0_Msk);
-	GPIOB->MODER |= GPIO_MODER_MODER0_0; 				// output
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;                  //led
+    GPIOB->MODER &= ~(GPIO_MODER_MODER0_Msk);
+    GPIOB->MODER |= GPIO_MODER_MODER0_0;                 // output
 
-	GPIOB->OTYPER &= ~(GPIO_OTYPER_OT_0);				// push pull
-	GPIOB->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0_Msk);
-	GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR0_Msk; 		// very high spped
-	GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPDR0_Msk); 			// no pull up/down
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT_0);                // push pull
+    GPIOB->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0_Msk);
+    GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR0_Msk;         // very high spped
+    GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPDR0_Msk);             // no pull up/down
 
 }
 
 void button_init()
 {
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;  				// button
-	GPIOC->MODER &= ~(GPIO_MODER_MODER13_Msk);  		// input mode
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;                  // button
+    GPIOC->MODER &= ~(GPIO_MODER_MODER13_Msk);          // input mode
+    GPIOC->PUPDR &= ~(GPIO_PUPDR_PUPDR13_Msk);
 
-	GPIOC->PUPDR &= ~(GPIO_PUPDR_PUPDR13_Msk);
+    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;                  // SYSFG enable(Multiplexor for exti port)
+    SYSCFG->EXTICR[3] &= ~(SYSCFG_EXTICR4_EXTI13_Msk);
+    SYSCFG->EXTICR[3] |= SYSCFG_EXTICR4_EXTI13_PC;
+
+    EXTI->FTSR |= EXTI_FTSR_TR13;
+    EXTI->IMR |= EXTI_IMR_IM13;
+    EXTI->PR = EXTI_PR_PR13;
+    NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 void button_front_toggle()
 {
-	static bool pressed = false;
-	if(!(GPIOC->IDR & GPIO_IDR_IDR_13))
-		{
-			if(!pressed)
-			{
-				bit_toggle(&GPIOB->ODR, 0);
-				pressed = true;
-			}
-		}
-		else
-		{
-			if(pressed)
-			{
-				pressed = false;
+    static bool pressed = false;
+    if(!(GPIOC->IDR & GPIO_IDR_IDR_13))
+        {
+            if(!pressed)
+            {
+                bit_toggle(&GPIOB->ODR, 0);
+                pressed = true;
+            }
+        }
+        else
+        {
+            if(pressed)
+            {
+                pressed = false;
 
-			}
-		}
+            }
+        }
 }
+
+void EXTI15_10_IRQHandler()
+{
+    EXTI->PR = EXTI_PR_PR13;
+    button_event = true;
+}
+
+
+
+
+
 
