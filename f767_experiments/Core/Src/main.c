@@ -1,5 +1,6 @@
 #include "stm32f767xx.h"
 #include "bitops.h"
+#include "SysTick.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -7,22 +8,37 @@ void led_init();
 void button_init();
 void button_front_toggle();
 
+
 void EXTI15_10_IRQHandler();
 
+
 volatile bool button_event = false;
+
+
 
 int main(void)
 {
     led_init();
     button_init();
+    sysTick_init();
+    uint32_t last_toggle = 0;
+
 
     while(1)
     {
+    	uint32_t now  = ms_ticks;
+    	if(now - last_toggle >=1000)
+    	{
+    		last_toggle = now;
+    		bit_toggle(&GPIOB->ODR, 0);
+    	}
         if(button_event)
         {
             button_event = false;
-            bit_toggle(&GPIOB->ODR, 0);
+            bit_toggle(&GPIOB->ODR, 7);
         }
+
+        //delay_ms(1000);
 
     }
 
@@ -39,6 +55,17 @@ void led_init()
     GPIOB->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0_Msk);
     GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR0_Msk;         // very high spped
     GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPDR0_Msk);             // no pull up/down
+
+    GPIOB->MODER &= ~(GPIO_MODER_MODER7_Msk);
+    GPIOB->MODER |= GPIO_MODER_MODER7_0;                 // output
+
+    GPIOB->OTYPER &= ~(GPIO_OTYPER_OT_7);                // push pull
+    GPIOB->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR7_Msk);
+    GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR7_Msk;         // very high spped
+    GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPDR7_Msk);             // no pull up/down
+
+
+
 
 }
 
@@ -80,13 +107,19 @@ void button_front_toggle()
         }
 }
 
-void EXTI15_10_IRQHandler()
+void EXTI15_10_IRQHandler(void)
 {
     EXTI->PR = EXTI_PR_PR13;
-    button_event = true;
+
+    static uint32_t last_press = 0;
+    uint32_t now = ms_ticks;
+
+    if (now - last_press >= 20)
+    {
+        last_press = now;
+        button_event = true;
+    }
 }
-
-
 
 
 
