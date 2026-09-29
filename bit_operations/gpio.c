@@ -7,5 +7,5 @@ void gpio_set_mode(volatile uint32_t* moder_reg, uint8_t pin, enum GPIO_MODER_T 
     assert(moder_reg!=NULL);
     assert(pin<16);
     assert(mode <= Analog_Mode);
-    set_field(moder_reg, pin*2, 2, (uint8_t)mode);
+    set_field(moder_reg, pin*2, 2, mode);
 }
